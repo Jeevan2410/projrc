@@ -46,6 +46,20 @@ QuoteFlow actively identifies opportunities where businesses may lose money:
 - Git
 - Cloudflare account (for Workers deployment)
 - Supabase account (for database & auth)
+- GitHub account (for version control)
+
+### Deploy to GitHub
+
+To enable automatic deployments and collaboration:
+
+```bash
+# One-time setup with GitHub token
+export GITHUB_REPO_URL='https://github.com/YOUR_USERNAME/quoteflow.git'
+export GITHUB_TOKEN='your_github_token_here'
+./deploy-to-github.sh
+```
+
+For detailed instructions, see [GITHUB_SETUP.md](./GITHUB_SETUP.md)
 
 ### Local Development
 
