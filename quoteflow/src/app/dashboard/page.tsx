@@ -1,11 +1,11 @@
-import { createClient } from '@/lib/supabase/index'
+import { createClient as serverCreateClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default async function DashboardPage() {
-  const supabase = await createClient()
+  const supabase = await serverCreateClient()
   
   const { data: { user } } = await supabase.auth.getUser()
   
