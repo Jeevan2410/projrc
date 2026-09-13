@@ -1,0 +1,2967 @@
+# MASTER AUTONOMOUS BUILD PROMPT — QUOTEFLOW
+
+You are the lead product architect, UX designer, senior full-stack engineer, DevOps engineer, QA engineer, security engineer, growth engineer, and technical product manager.
+
+Your job is to independently DESIGN, BUILD, TEST, FIX, DOCUMENT, and PREPARE FOR DEPLOYMENT a complete production-ready SaaS product.
+
+DO NOT ask me for approval at each stage.
+
+DO NOT stop after generating a plan.
+
+DO NOT give me only sample code.
+
+DO NOT create fake buttons that do nothing.
+
+DO NOT leave core functionality as TODOs.
+
+Make reasonable decisions independently and continue until the application is runnable.
+
+---
+
+# 1. PRODUCT
+
+Build:
+
+**QuoteFlow**
+
+Tagline:
+
+**Turn every enquiry into a quote, every quote into a job, and every job into paid revenue.**
+
+Category:
+
+Vertical SaaS / SMB Operations / Quote-to-Cash / Lead Follow-up
+
+Primary market:
+
+Small and medium service businesses that currently manage enquiries and customers through WhatsApp, phone calls, spreadsheets, notebooks, PDFs, and email.
+
+Target business types:
+
+- Equipment rental
+- Forklift rental and maintenance
+- Generator rental
+- Machinery repair
+- AC/HVAC service
+- Electrical contractors
+- Plumbing businesses
+- Fabrication workshops
+- Printing businesses
+- Interior contractors
+- Pest-control companies
+- Cleaning businesses
+- Computer/mobile repair
+- CCTV/security installers
+- Solar installers
+- Industrial maintenance companies
+- Auto-service businesses
+- Local B2B suppliers
+- Field-service businesses
+
+Do NOT make the UI specific to one industry.
+
+Create an industry-template system so the same product can be configured for different business types.
+
+---
+
+# 2. CORE BUSINESS PROBLEM
+
+The product must solve this workflow:
+
+Customer enquiry
+→ customer details
+→ requirement
+→ quote
+→ quote sent
+→ follow-up
+→ accepted/rejected
+→ job created
+→ work tracked
+→ invoice
+→ payment
+→ review/referral
+→ customer retained
+
+The key differentiator is:
+
+**Revenue Recovery**
+
+The software should actively identify opportunities where a business may lose money because somebody forgot to follow up.
+
+Examples:
+
+- Quote sent 2 days ago but customer hasn't responded.
+- High-value enquiry has no follow-up.
+- Customer requested a quote but quote was never created.
+- Job completed but invoice not sent.
+- Invoice unpaid past due date.
+- Customer has not returned for a long period.
+- Rental equipment is due for return.
+- Maintenance contract is nearing expiry.
+
+Create a “Revenue Opportunities” section that surfaces these items.
+
+---
+
+# 3. PRODUCT POSITIONING
+
+Do not market this as another boring CRM.
+
+Position it as:
+
+**“The revenue follow-up system for businesses that still run on WhatsApp and Excel.”**
+
+The product should feel:
+
+- practical
+- premium
+- extremely easy
+- fast
+- trustworthy
+- modern
+- operational
+- business-oriented
+
+Avoid the generic “AI startup dashboard” look.
+
+---
+
+# 4. BUSINESS MODEL
+
+Create SaaS monetization from day one.
+
+Plans:
+
+### Free
+- 25 customers
+- 25 quotes/month
+- basic dashboard
+- basic follow-ups
+- PDF quotations
+- basic reports
+
+### Starter
+₹499/month
+
+- 300 customers
+- 500 quotes/month
+- automated reminders
+- quote templates
+- invoice generation
+- customer history
+- analytics
+
+### Growth
+₹999/month
+
+- unlimited customers
+- unlimited quotes
+- automation
+- team members
+- advanced analytics
+- industry templates
+- AI assistance
+- custom branding
+- export
+
+### Business
+₹1,999/month
+
+- multi-user
+- role-based access
+- advanced automation
+- multiple business locations
+- API access
+- priority features
+- white-label quotation branding
+
+Architect billing so plans can later be changed without changing application logic.
+
+Use Razorpay for India-first subscription/payment infrastructure, but design the billing provider behind an abstraction layer so another provider can be added later.
+
+Razorpay subscription links/API support should be treated as an integration layer rather than hard-coded throughout the application.
+
+---
+
+# 5. TECHNOLOGY STACK
+
+Use this stack unless there is an extremely strong technical reason to change it.
+
+## Frontend
+
+- Next.js 16
+- React
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+- Lucide icons
+- React Hook Form
+- Zod
+- TanStack Query where appropriate
+- Recharts
+
+## Runtime / Hosting
+
+Cloudflare Workers
+
+Use the current Cloudflare-recommended Next.js deployment approach.
+
+Prefer:
+
+- vinext
+- Wrangler
+- Cloudflare Workers
+
+Do not use Cloudflare Pages for the full-stack application when Workers is the better fit.
+
+## Database
+
+Supabase PostgreSQL
+
+Use:
+
+- Supabase Auth
+- PostgreSQL
+- Row Level Security
+- Supabase Storage where useful
+
+Design all database access around secure server-side patterns.
+
+## File storage
+
+Use Supabase Storage initially.
+
+Create an abstraction so Cloudflare R2 can be enabled later for higher-volume document/file storage.
+
+## Email
+
+Create an email provider abstraction.
+
+Initial provider:
+
+Resend
+
+Emails required:
+
+- welcome
+- email verification
+- password reset
+- quote sent
+- quote viewed
+- quote accepted
+- quote rejected
+- invoice created
+- invoice overdue
+- payment received
+- follow-up reminder
+
+## Payments
+
+Razorpay abstraction.
+
+Do not tightly couple business logic to Razorpay.
+
+## Bot protection
+
+Cloudflare Turnstile for:
+
+- signup
+- login protection where appropriate
+- contact forms
+- public quote actions
+- public forms
+
+Always perform server-side Turnstile verification.
+
+## Analytics
+
+Create a provider abstraction.
+
+Start with privacy-conscious first-party product analytics.
+
+Track:
+
+- signup
+- onboarding completion
+- quote creation
+- quote sent
+- quote viewed
+- quote accepted
+- invoice created
+- payment
+- subscription conversion
+
+## AI
+
+Create an AI provider abstraction.
+
+Do NOT make the application dependent on a single AI vendor.
+
+Features should include:
+
+- quote description generation
+- professional rewriting
+- follow-up message generation
+- customer-message summarization
+- quote risk/opportunity scoring
+- suggested next action
+
+AI must remain optional.
+
+The core SaaS must work without AI.
+
+---
+
+# 6. DATABASE ARCHITECTURE
+
+Design a proper relational schema.
+
+Required entities:
+
+users
+profiles
+organizations
+organization_members
+roles
+permissions
+industries
+industry_templates
+customers
+customer_contacts
+customer_addresses
+leads
+lead_events
+requirements
+quotes
+quote_items
+quote_versions
+quote_events
+quote_followups
+jobs
+job_items
+job_events
+invoices
+invoice_items
+payments
+payment_events
+products
+services
+inventory_items
+rental_assets
+rental_contracts
+maintenance_records
+reminders
+automations
+automation_runs
+documents
+document_templates
+notifications
+subscriptions
+subscription_events
+audit_logs
+integrations
+api_keys
+webhooks
+support_tickets
+usage_metrics
+
+Every organization must have strict tenant isolation.
+
+Users must NEVER be able to access another organization's data.
+
+Use Supabase Row Level Security.
+
+---
+
+# 7. MULTI-TENANCY
+
+Architecture must be multi-tenant from the beginning.
+
+Every business-owned record should be linked to:
+
+organization_id
+
+Never trust organization_id supplied directly by clients.
+
+Determine ownership from authenticated user membership.
+
+Implement:
+
+- owner
+- admin
+- manager
+- staff
+- viewer
+
+permissions.
+
+---
+
+# 8. AUTHENTICATION
+
+Implement:
+
+- email/password
+- email verification
+- password reset
+- logout
+- session persistence
+- protected routes
+- onboarding
+
+Structure authentication cleanly for SSR.
+
+Do not store sensitive authentication data manually.
+
+---
+
+# 9. ONBOARDING
+
+Create an excellent onboarding flow.
+
+Step 1:
+
+What type of business do you run?
+
+Step 2:
+
+Business name
+
+Step 3:
+
+Location
+
+Step 4:
+
+Currency
+
+Default:
+
+INR
+
+Allow:
+
+INR
+USD
+GBP
+EUR
+
+Step 5:
+
+Business logo
+
+Step 6:
+
+What do you sell?
+
+Services / products / rentals / maintenance / mixed
+
+Step 7:
+
+How do customers contact you?
+
+Phone
+WhatsApp
+Email
+Website
+Walk-in
+Other
+
+Step 8:
+
+Create first customer
+
+Step 9:
+
+Create first quote
+
+Step 10:
+
+Dashboard
+
+Give users a sample demo workspace if they select “Explore demo”.
+
+---
+
+# 10. LANDING PAGE
+
+Create a highly polished marketing website.
+
+Sections:
+
+Hero
+
+Problem
+
+How it works
+
+Features
+
+Revenue Recovery
+
+Industry use cases
+
+Quote examples
+
+Automation examples
+
+Pricing
+
+FAQ
+
+Security
+
+Testimonials placeholder
+
+CTA
+
+Footer
+
+Hero messaging:
+
+“Stop losing customers after sending the quote.”
+
+Supporting copy:
+
+“QuoteFlow helps small businesses manage enquiries, quotations, follow-ups, jobs, invoices and payments from one simple workspace.”
+
+Primary CTA:
+
+Start free
+
+Secondary CTA:
+
+See how it works
+
+Create a live interactive demo.
+
+---
+
+# 11. VISUAL DESIGN
+
+Do NOT use a generic dashboard template.
+
+Design language:
+
+- editorial SaaS
+- modern B2B
+- highly usable
+- generous whitespace
+- subtle motion
+- strong typography
+- clear hierarchy
+- excellent mobile responsiveness
+
+Use a neutral foundation with one strong brand accent.
+
+Create:
+
+- light mode
+- dark mode
+- responsive layout
+- keyboard accessibility
+- proper empty states
+- skeleton loading
+- error states
+- success states
+
+Use motion sparingly.
+
+No excessive gradients.
+
+No childish illustrations.
+
+No unnecessary glassmorphism everywhere.
+
+---
+
+# 12. MAIN APPLICATION NAVIGATION
+
+Dashboard
+
+Inbox
+
+Leads
+
+Customers
+
+Quotes
+
+Jobs
+
+Invoices
+
+Payments
+
+Products & Services
+
+Rentals
+
+Maintenance
+
+Automations
+
+Reports
+
+Documents
+
+Team
+
+Integrations
+
+Settings
+
+Billing
+
+Help
+
+---
+
+# 13. DASHBOARD
+
+Build an extremely useful business dashboard.
+
+Cards:
+
+Revenue
+
+Outstanding
+
+Quotes sent
+
+Quote acceptance rate
+
+Open leads
+
+Jobs in progress
+
+Overdue invoices
+
+Revenue at risk
+
+Show:
+
+Revenue trend
+
+Quote conversion funnel
+
+Revenue pipeline
+
+Follow-up opportunities
+
+Recent customers
+
+Recent quotes
+
+Recent invoices
+
+Upcoming jobs
+
+Important alerts
+
+---
+
+# 14. REVENUE RECOVERY ENGINE
+
+This is the signature feature.
+
+Build a rules-based opportunity engine.
+
+Example opportunities:
+
+QUOTE_NOT_FOLLOWED_UP
+
+QUOTE_VIEWED_NOT_ACCEPTED
+
+HIGH_VALUE_LEAD_IDLE
+
+QUOTE_ABOUT_TO_EXPIRE
+
+INVOICE_OVERDUE
+
+JOB_COMPLETED_INVOICE_MISSING
+
+CUSTOMER_INACTIVE
+
+RENTAL_RETURN_DUE
+
+MAINTENANCE_DUE
+
+CONTRACT_EXPIRING
+
+For each opportunity:
+
+- priority
+- customer
+- value
+- reason
+- recommended action
+- due date
+- status
+- assigned employee
+
+Example:
+
+“₹48,000 quote has been viewed twice but no response for 3 days.”
+
+Suggested action:
+
+“Send follow-up”
+
+Button:
+
+Generate message
+
+Button:
+
+Send
+
+Button:
+
+Schedule
+
+---
+
+# 15. LEADS
+
+Build full lead management.
+
+Fields:
+
+name
+company
+phone
+email
+source
+requirement
+estimated_value
+priority
+status
+assigned_to
+next_followup
+notes
+created_at
+
+Statuses:
+
+New
+
+Contacted
+
+Qualified
+
+Quote Pending
+
+Quote Sent
+
+Negotiation
+
+Won
+
+Lost
+
+Follow-up
+
+Show a Kanban board.
+
+Also provide table view.
+
+---
+
+# 16. CUSTOMER CRM
+
+Customer profile must include:
+
+contact information
+
+company information
+
+addresses
+
+all enquiries
+
+quotes
+
+jobs
+
+invoices
+
+payments
+
+notes
+
+documents
+
+communication timeline
+
+total revenue
+
+outstanding balance
+
+last interaction
+
+customer health
+
+lifetime value
+
+Create timeline UI.
+
+---
+
+# 17. QUOTE BUILDER
+
+This must be one of the strongest parts of the application.
+
+Quote editor:
+
+Customer
+
+Quote number
+
+Date
+
+Validity
+
+Items
+
+Description
+
+Quantity
+
+Unit
+
+Rate
+
+Discount
+
+Tax
+
+Subtotal
+
+Tax
+
+Total
+
+Notes
+
+Terms
+
+Payment terms
+
+Attachments
+
+Signature
+
+Create templates.
+
+Allow:
+
+save draft
+
+preview
+
+duplicate
+
+version
+
+send
+
+download PDF
+
+print
+
+share public link
+
+mark accepted
+
+mark rejected
+
+request changes
+
+---
+
+# 18. PUBLIC QUOTE PAGE
+
+Each quote gets a secure public URL.
+
+Example:
+
+/q/8F2K9
+
+Customer sees:
+
+company logo
+
+quote details
+
+items
+
+pricing
+
+terms
+
+attachments
+
+validity
+
+contact details
+
+buttons:
+
+Accept quote
+
+Request changes
+
+Reject quote
+
+Download PDF
+
+Ask a question
+
+Track every important event.
+
+Example:
+
+Quote opened
+
+Quote viewed
+
+PDF downloaded
+
+Accept clicked
+
+Rejected
+
+Request changes
+
+---
+
+# 19. PDF GENERATION
+
+Generate professional quotations and invoices.
+
+Include:
+
+company branding
+
+logo
+
+business details
+
+customer details
+
+line items
+
+tax
+
+totals
+
+terms
+
+payment information
+
+signature
+
+document number
+
+date
+
+status
+
+Create reusable document templates.
+
+Do not produce ugly browser-print output only.
+
+Use a stable PDF generation strategy compatible with the deployment runtime.
+
+---
+
+# 20. FOLLOW-UP AUTOMATION
+
+Allow users to define rules.
+
+Example:
+
+When quote is sent
+
+Wait 2 days
+
+If not accepted
+
+Create follow-up task
+
+After another 2 days
+
+Send suggested reminder
+
+When invoice becomes overdue
+
+Create payment reminder
+
+When customer hasn't purchased for 90 days
+
+Create reactivation opportunity
+
+Build automation builder UI.
+
+Keep first release simple:
+
+Trigger
+
+Condition
+
+Delay
+
+Action
+
+---
+
+# 21. MESSAGE GENERATOR
+
+Generate professional follow-up messages.
+
+Provide channels:
+
+WhatsApp
+
+Email
+
+SMS-ready text
+
+Example:
+
+“Hi Rajesh, just checking whether you had a chance to review the quotation we sent for the forklift maintenance work. I’m happy to clarify anything or make changes based on your requirements.”
+
+Allow:
+
+Professional
+
+Friendly
+
+Short
+
+Urgent
+
+Negotiation
+
+Reminder
+
+Thank you
+
+Do not automatically send messages unless the required integration is configured.
+
+---
+
+# 22. WHATSAPP ARCHITECTURE
+
+Do not fake WhatsApp integration.
+
+Build an integration abstraction.
+
+Future providers can include:
+
+WhatsApp Cloud API
+
+Twilio
+
+other approved providers
+
+For MVP provide:
+
+Copy WhatsApp message
+
+Open WhatsApp with prefilled message where supported
+
+Log message as an interaction
+
+When credentials are later supplied, enable real API sending.
+
+Never scrape WhatsApp Web.
+
+---
+
+# 23. JOB MANAGEMENT
+
+When quote is accepted:
+
+Offer:
+
+Create Job
+
+Job fields:
+
+job number
+
+customer
+
+description
+
+location
+
+assigned team
+
+scheduled date
+
+priority
+
+status
+
+estimated completion
+
+actual completion
+
+materials
+
+notes
+
+attachments
+
+Statuses:
+
+Scheduled
+
+Assigned
+
+In Progress
+
+Waiting
+
+Completed
+
+Cancelled
+
+---
+
+# 24. INVOICING
+
+Implement:
+
+draft invoice
+
+send invoice
+
+due date
+
+payment terms
+
+partial payments
+
+payment tracking
+
+overdue status
+
+payment history
+
+PDF invoice
+
+download
+
+share
+
+email
+
+public invoice page
+
+---
+
+# 25. RENTAL MODULE
+
+Because rental businesses are a strong vertical opportunity, include a reusable rental module.
+
+Rental assets:
+
+asset ID
+
+name
+
+category
+
+serial number
+
+condition
+
+purchase date
+
+status
+
+rental price/day
+
+rental price/week
+
+rental price/month
+
+location
+
+customer
+
+maintenance status
+
+Create:
+
+rental booking
+
+rental contract
+
+rental start
+
+rental end
+
+deposit
+
+return tracking
+
+damage notes
+
+late fee
+
+maintenance scheduling
+
+Asset states:
+
+Available
+
+Reserved
+
+Rented
+
+Maintenance
+
+Retired
+
+---
+
+# 26. MAINTENANCE MODULE
+
+For maintenance businesses create:
+
+equipment/customer asset
+
+service history
+
+maintenance interval
+
+last service
+
+next service
+
+technician
+
+parts
+
+labor
+
+cost
+
+notes
+
+attachments
+
+Create automatic upcoming-maintenance opportunities.
+
+---
+
+# 27. PRODUCTS AND SERVICES
+
+Allow users to create:
+
+products
+
+services
+
+rental assets
+
+packages
+
+pricing
+
+tax
+
+SKU
+
+unit
+
+description
+
+active/inactive
+
+Use them directly in quotes and invoices.
+
+---
+
+# 28. ANALYTICS
+
+Create meaningful analytics.
+
+Metrics:
+
+lead-to-quote conversion
+
+quote-to-win conversion
+
+average quote value
+
+average sales cycle
+
+revenue
+
+outstanding revenue
+
+overdue amount
+
+customer lifetime value
+
+repeat customer rate
+
+follow-up success rate
+
+lost quote value
+
+revenue recovered
+
+top customers
+
+top services
+
+top products
+
+top salespeople
+
+Build charts and filters.
+
+---
+
+# 29. AI RECOMMENDATIONS
+
+AI should explain:
+
+“What should I do today?”
+
+Generate prioritized recommendations.
+
+Example:
+
+1. Follow up ₹80,000 quote from ABC Industries.
+2. Collect ₹24,000 overdue invoice.
+3. Contact customer inactive for 120 days.
+4. Renew maintenance contract expiring next week.
+
+This should become the app's daily command center.
+
+---
+
+# 30. COMMAND CENTER
+
+Create a universal command palette.
+
+Keyboard:
+
+Ctrl + K
+
+Actions:
+
+Create customer
+
+Create lead
+
+Create quote
+
+Create job
+
+Create invoice
+
+Search customer
+
+Search quote
+
+Search invoice
+
+Open revenue opportunities
+
+Generate follow-up
+
+Open reports
+
+Settings
+
+Make this extremely fast.
+
+---
+
+# 31. GLOBAL SEARCH
+
+Search:
+
+customers
+
+leads
+
+quotes
+
+jobs
+
+invoices
+
+products
+
+services
+
+rental assets
+
+documents
+
+Use PostgreSQL full-text/trigram strategies where appropriate.
+
+---
+
+# 32. NOTIFICATIONS
+
+Build notification center.
+
+Types:
+
+follow-up due
+
+quote viewed
+
+quote accepted
+
+invoice overdue
+
+payment received
+
+maintenance due
+
+rental return due
+
+automation error
+
+subscription warning
+
+Allow read/unread.
+
+---
+
+# 33. TEAM MANAGEMENT
+
+Organization owner can:
+
+invite members
+
+remove members
+
+assign roles
+
+change permissions
+
+view activity
+
+assign leads/jobs
+
+Create audit log.
+
+---
+
+# 34. SETTINGS
+
+Business:
+
+company name
+
+logo
+
+address
+
+phone
+
+email
+
+tax details
+
+currency
+
+timezone
+
+document numbering
+
+branding
+
+Quote:
+
+validity
+
+default terms
+
+payment terms
+
+Invoice:
+
+prefix
+
+payment terms
+
+late fees
+
+Notifications
+
+Automations
+
+Integrations
+
+Team
+
+Security
+
+Billing
+
+---
+
+# 35. ADMIN PANEL
+
+Create a protected platform administration area.
+
+Admin features:
+
+organizations
+
+users
+
+subscriptions
+
+usage
+
+system health
+
+feature flags
+
+support tickets
+
+audit logs
+
+failed jobs
+
+automation failures
+
+AI usage
+
+storage usage
+
+revenue metrics
+
+Do not expose this area to normal users.
+
+---
+
+# 36. SECURITY
+
+Implement production security practices.
+
+Required:
+
+- secure authentication
+- RLS
+- server-side authorization
+- input validation
+- Zod schemas
+- CSRF-safe architecture
+- rate limiting
+- secure headers
+- CSP where practical
+- XSS protection
+- SQL injection protection through parameterized queries
+- signed public document URLs where appropriate
+- webhook signature verification
+- secure secret management
+- audit logging
+- abuse prevention
+- Turnstile for public sensitive forms
+
+Never commit secrets.
+
+Never place private service-role keys in client-side code.
+
+Never trust client-side permissions.
+
+Cloudflare Turnstile must use server-side Siteverify validation.
+
+---
+
+# 37. ENVIRONMENT VARIABLES
+
+Create:
+
+.env.example
+
+Never require real credentials during initial build.
+
+Use placeholders:
+
+NEXT_PUBLIC_APP_URL=
+
+NEXT_PUBLIC_SUPABASE_URL=
+
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+
+SUPABASE_SERVICE_ROLE_KEY=
+
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=
+
+TURNSTILE_SECRET_KEY=
+
+RESEND_API_KEY=
+
+RAZORPAY_KEY_ID=
+
+RAZORPAY_KEY_SECRET=
+
+RAZORPAY_WEBHOOK_SECRET=
+
+AI_API_KEY=
+
+AI_PROVIDER=
+
+R2_ACCOUNT_ID=
+
+R2_ACCESS_KEY_ID=
+
+R2_SECRET_ACCESS_KEY=
+
+R2_BUCKET_NAME=
+
+SENTRY_DSN=
+
+ANALYTICS_KEY=
+
+Include comments explaining where each value comes from.
+
+The application must still boot in development when optional provider keys are missing.
+
+Show integrations as:
+
+Not configured
+
+rather than crashing.
+
+---
+
+# 38. GITHUB
+
+Create a professional repository structure.
+
+Include:
+
+README.md
+
+LICENSE
+
+CONTRIBUTING.md
+
+SECURITY.md
+
+.env.example
+
+.gitignore
+
+docs/
+
+database/
+
+scripts/
+
+tests/
+
+e2e/
+
+src/
+
+Do not commit:
+
+.env
+
+credentials
+
+API keys
+
+private certificates
+
+production secrets
+
+---
+
+# 39. DATABASE MIGRATIONS
+
+Do NOT depend on manually editing the database through the dashboard.
+
+Create versioned migrations.
+
+Include:
+
+initial schema
+
+RLS policies
+
+indexes
+
+triggers
+
+functions
+
+seed data
+
+demo tenant
+
+demo user instructions
+
+Make database setup reproducible.
+
+---
+
+# 40. DEMO MODE
+
+Create a complete demo experience.
+
+Demo workspace should contain realistic fictional data.
+
+Include:
+
+20 customers
+
+15 leads
+
+20 quotes
+
+8 jobs
+
+15 invoices
+
+sample payments
+
+rental assets
+
+maintenance records
+
+automation examples
+
+revenue opportunity examples
+
+Make the dashboard immediately look alive.
+
+Clearly mark demo data.
+
+---
+
+# 41. SEO
+
+Marketing pages must be SEO-ready.
+
+Create:
+
+metadata
+
+Open Graph
+
+Twitter/X metadata
+
+sitemap
+
+robots.txt
+
+structured data where appropriate
+
+clean URLs
+
+canonical URLs
+
+industry landing pages
+
+Examples:
+
+/for/forklift-rental
+
+/for/equipment-rental
+
+/for/ac-service
+
+/for/fabrication
+
+/for/maintenance
+
+/for/contractors
+
+Do not create low-quality duplicate SEO pages.
+
+---
+
+# 42. GROWTH ENGINE
+
+Build product-led growth features.
+
+Free tools on the marketing website:
+
+Quote Generator
+
+Invoice Generator
+
+Profit Calculator
+
+Quotation Follow-up Generator
+
+Rental Price Calculator
+
+Service Estimate Generator
+
+These tools should lead users toward the SaaS.
+
+Create shareable public quote pages.
+
+Create referral architecture.
+
+Create referral codes in database.
+
+---
+
+# 43. EMAIL TEMPLATES
+
+Build reusable HTML email templates.
+
+Emails should be:
+
+- professional
+- mobile responsive
+- branded
+- simple
+
+Do not use spam-like language.
+
+---
+
+# 44. ERROR HANDLING
+
+Every major workflow must have:
+
+loading
+
+empty
+
+error
+
+success
+
+retry
+
+fallback
+
+Do not expose raw stack traces to customers.
+
+Create useful developer logging.
+
+---
+
+# 45. OBSERVABILITY
+
+Add structured logging.
+
+Track:
+
+request errors
+
+database errors
+
+payment failures
+
+webhook failures
+
+automation failures
+
+AI failures
+
+email failures
+
+Use Sentry integration abstraction.
+
+Do not allow observability failure to break the product.
+
+---
+
+# 46. TESTING
+
+Create:
+
+unit tests
+
+integration tests
+
+database/RLS tests
+
+API tests
+
+critical end-to-end tests
+
+Accessibility tests where practical
+
+At minimum test:
+
+signup
+
+login
+
+organization creation
+
+customer creation
+
+lead creation
+
+quote creation
+
+quote editing
+
+quote sending
+
+public quote access
+
+quote acceptance
+
+invoice creation
+
+payment recording
+
+automation
+
+permissions
+
+tenant isolation
+
+billing state
+
+---
+
+# 47. PERFORMANCE
+
+Optimize for:
+
+fast initial load
+
+low JavaScript
+
+server rendering where appropriate
+
+cached reads
+
+pagination
+
+lazy loading
+
+image optimization
+
+database indexes
+
+efficient queries
+
+avoid N+1 queries
+
+Mobile performance matters.
+
+---
+
+# 48. MOBILE
+
+The product must work exceptionally well on mobile.
+
+The primary users may be:
+
+technicians
+
+owners
+
+salespeople
+
+field workers
+
+Make important actions thumb-friendly.
+
+Especially:
+
+Create lead
+
+Create customer
+
+Create quote
+
+Call customer
+
+WhatsApp
+
+Update job
+
+Record payment
+
+---
+
+# 49. ACCESSIBILITY
+
+Implement:
+
+semantic HTML
+
+keyboard navigation
+
+visible focus
+
+ARIA where necessary
+
+good contrast
+
+screen-reader labels
+
+reduced-motion support
+
+proper form error messages
+
+---
+
+# 50. CODE QUALITY
+
+Use:
+
+TypeScript strict mode
+
+clean architecture
+
+reusable components
+
+server/client separation
+
+schema validation
+
+centralized constants
+
+typed database access
+
+typed API responses
+
+no unnecessary abstractions
+
+no giant components
+
+no duplicated logic
+
+No `any` unless truly necessary.
+
+Do not disable TypeScript or ESLint merely to make builds pass.
+
+---
+
+# 51. API ARCHITECTURE
+
+Use secure server-side API routes/server actions as appropriate.
+
+Organize by domain.
+
+Example:
+
+/api/customers
+
+/api/leads
+
+/api/quotes
+
+/api/jobs
+
+/api/invoices
+
+/api/payments
+
+/api/automations
+
+/api/ai
+
+/api/webhooks
+
+Keep payment/webhook logic isolated.
+
+---
+
+# 52. CRON / BACKGROUND WORK
+
+Design scheduled jobs for:
+
+overdue invoices
+
+follow-up detection
+
+quote expiration
+
+customer inactivity
+
+maintenance reminders
+
+rental returns
+
+contract expiration
+
+automation execution
+
+Do not assume traditional long-running servers.
+
+Use the deployment platform's compatible scheduled/background mechanisms.
+
+---
+
+# 53. BILLING ARCHITECTURE
+
+Create:
+
+plans
+
+features
+
+usage limits
+
+subscription status
+
+trial state
+
+billing events
+
+payment events
+
+entitlements
+
+middleware/helper functions:
+
+canUseFeature()
+
+checkUsageLimit()
+
+getSubscription()
+
+isSubscriptionActive()
+
+Never scatter plan checks throughout UI code.
+
+---
+
+# 54. FREE VS PAID FEATURES
+
+Implement feature gating.
+
+Example:
+
+Free:
+
+customers up to 25
+
+quotes up to 25/month
+
+basic analytics
+
+Starter:
+
+automation
+
+invoice
+
+advanced quote tools
+
+Growth:
+
+AI
+
+team
+
+advanced analytics
+
+Business:
+
+multi-location
+
+API
+
+advanced controls
+
+Show upgrade CTA naturally.
+
+Do not make the free experience annoying.
+
+---
+
+# 55. INTERNATIONALIZATION READY
+
+Build code so localization can be added later.
+
+At minimum prepare for:
+
+English
+
+Kannada
+
+Hindi
+
+Do not hard-code important UI strings into complex logic.
+
+Default language:
+
+English.
+
+---
+
+# 56. CURRENCY / TAX
+
+Do not hard-code Indian tax logic into all business logic.
+
+Support:
+
+currency
+
+tax rate
+
+tax labels
+
+tax-inclusive pricing
+
+tax-exclusive pricing
+
+business-configurable invoice fields
+
+India can be the initial market.
+
+---
+
+# 57. DOCUMENT TEMPLATE ENGINE
+
+Create templates for:
+
+quotation
+
+invoice
+
+receipt
+
+job completion
+
+rental agreement
+
+maintenance report
+
+Allow branding and customization.
+
+---
+
+# 58. IMPORT / EXPORT
+
+Support CSV import for:
+
+customers
+
+products
+
+services
+
+leads
+
+Provide validation preview before import.
+
+Exports:
+
+customers
+
+quotes
+
+invoices
+
+leads
+
+reports
+
+CSV.
+
+---
+
+# 59. BACKUP / RECOVERY DESIGN
+
+Document:
+
+database backups
+
+storage strategy
+
+migration strategy
+
+restore strategy
+
+export strategy
+
+Never pretend application-level backup is sufficient.
+
+---
+
+# 60. DOCUMENTATION
+
+Create:
+
+README
+
+Architecture documentation
+
+Setup documentation
+
+Environment documentation
+
+Database documentation
+
+Deployment documentation
+
+Billing documentation
+
+Security documentation
+
+API documentation
+
+Troubleshooting documentation
+
+AI integration documentation
+
+---
+
+# 61. LOCAL DEVELOPMENT
+
+Create simple commands:
+
+npm install
+
+npm run dev
+
+npm run build
+
+npm run lint
+
+npm run typecheck
+
+npm run test
+
+npm run test:e2e
+
+npm run db:migrate
+
+npm run db:seed
+
+npm run check
+
+npm run deploy
+
+Make:
+
+npm run check
+
+run all important validation checks.
+
+---
+
+# 62. ONE-COMMAND DEVELOPMENT EXPERIENCE
+
+Create a setup script:
+
+scripts/setup.mjs
+
+It should:
+
+- check Node version
+- install dependencies when necessary
+- validate environment variables
+- create local development configuration
+- validate Supabase configuration
+- run migrations when configured
+- seed demo data when requested
+- run typecheck
+- run lint
+- run tests
+- start development server
+
+Create a root command:
+
+npm run setup
+
+Also create:
+
+npm run doctor
+
+The doctor command should diagnose:
+
+Node
+
+npm
+
+Cloudflare CLI
+
+Supabase configuration
+
+environment variables
+
+database connectivity
+
+build compatibility
+
+---
+
+# 63. DEPLOYMENT
+
+Target:
+
+Cloudflare Workers
+
+Provide:
+
+wrangler.jsonc
+
+deployment scripts
+
+environment configuration documentation
+
+production build
+
+preview environment
+
+production environment
+
+custom domain instructions
+
+Create GitHub-compatible CI/CD.
+
+GitHub Actions:
+
+lint
+
+typecheck
+
+test
+
+build
+
+deployment validation
+
+Do not automatically deploy production from pull requests.
+
+---
+
+# 64. CLOUDFLARE
+
+Configure:
+
+Workers
+
+DNS
+
+custom domain support
+
+security headers
+
+Turnstile
+
+caching where safe
+
+R2 abstraction
+
+rate limiting strategy
+
+logging
+
+robots/security configuration
+
+Use modern Cloudflare-compatible APIs.
+
+---
+
+# 65. SUPABASE
+
+Use:
+
+Postgres
+
+Auth
+
+Storage
+
+RLS
+
+migrations
+
+indexes
+
+database functions where useful
+
+Do not expose service-role credentials.
+
+Generate typed database types where practical.
+
+---
+
+# 66. SEED DATA
+
+Generate realistic fictional data from multiple industries.
+
+Examples:
+
+Forklift rental
+
+AC repair
+
+Fabrication
+
+Solar
+
+CCTV
+
+Cleaning
+
+Equipment maintenance
+
+Do not use real people's personal data.
+
+---
+
+# 67. LANDING PAGE COPY
+
+Use concise conversion-focused copy.
+
+Avoid exaggerated claims.
+
+Avoid:
+
+“revolutionary”
+
+“guaranteed revenue”
+
+“10x your business”
+
+Instead demonstrate concrete value.
+
+---
+
+# 68. FIRST USER EXPERIENCE
+
+The first 5 minutes should be extremely simple.
+
+New user:
+
+signup
+
+business setup
+
+industry selection
+
+first customer
+
+first quote
+
+send/test quote
+
+dashboard shows:
+
+“Your first revenue opportunity will appear here.”
+
+For demo:
+
+allow instant exploration.
+
+---
+
+# 69. CRITICAL UX PRINCIPLE
+
+Every page must answer:
+
+“What should the user do next?”
+
+Examples:
+
+No leads:
+
+“Add your first lead”
+
+No quotes:
+
+“Create your first quote”
+
+Overdue invoice:
+
+“Send reminder”
+
+Quote waiting:
+
+“Follow up”
+
+The interface should drive action rather than merely display data.
+
+---
+
+# 70. UNIQUE FEATURE: MONEY LEFT ON TABLE
+
+Create a dedicated page:
+
+**Money Left on the Table**
+
+Show estimates such as:
+
+Pending quote value
+
+Overdue invoice value
+
+Inactive customer opportunity
+
+Expired quote opportunity
+
+Unbilled completed jobs
+
+Rental extensions
+
+Maintenance opportunities
+
+Display:
+
+Potential revenue
+
+Recommended actions
+
+Estimated recoverable amount
+
+Important:
+
+Never present estimates as guaranteed revenue.
+
+Label them clearly as opportunities or potential value.
+
+---
+
+# 71. UNIQUE FEATURE: TODAY
+
+Create a daily action screen:
+
+**Today**
+
+Show the top actions ranked by impact.
+
+Example:
+
+₹1,20,000 quote waiting — follow up
+
+₹35,000 overdue invoice — remind
+
+3 customers due for maintenance
+
+2 rental returns today
+
+1 quote expires tomorrow
+
+Include one-click actions.
+
+---
+
+# 72. UNIQUE FEATURE: BUSINESS HEALTH
+
+Create score:
+
+Lead health
+
+Quote health
+
+Follow-up health
+
+Payment health
+
+Customer health
+
+Overall business health
+
+Do not create fake statistical precision.
+
+Make scores rule-based and transparent.
+
+Show why a score changed.
+
+---
+
+# 73. AI SAFETY
+
+AI must never:
+
+invent customer information
+
+invent pricing
+
+invent payment status
+
+invent business facts
+
+claim to have sent something when it didn't
+
+claim a customer accepted a quote when they didn't
+
+All AI outputs must be treated as suggestions unless confirmed by application state.
+
+---
+
+# 74. NO FAKE INTEGRATIONS
+
+Do not create fake OAuth success.
+
+Do not fake payment success.
+
+Do not fake WhatsApp API delivery.
+
+Do not fake email delivery.
+
+When credentials are missing, show:
+
+“Integration not configured.”
+
+Provide setup instructions.
+
+---
+
+# 75. FINAL ENGINEERING LOOP
+
+After implementing the product:
+
+1. install dependencies
+2. run typecheck
+3. run lint
+4. run unit tests
+5. run integration tests
+6. run production build
+7. fix every error
+8. inspect important screens
+9. fix responsive issues
+10. inspect database policies
+11. test tenant isolation
+12. test auth
+13. test public quote flow
+14. test billing logic
+15. test error states
+16. rerun everything
+
+Do not stop at the first successful build.
+
+---
+
+# 76. ACCEPTANCE CRITERIA
+
+The project is considered complete only when:
+
+- it runs locally
+- it builds successfully
+- TypeScript passes
+- lint passes
+- tests pass
+- database migrations work
+- RLS is implemented
+- authentication works
+- demo data works
+- customer CRUD works
+- lead CRUD works
+- quotes work
+- public quotes work
+- quote acceptance works
+- invoices work
+- payments can be recorded
+- follow-up opportunities work
+- automation engine works
+- mobile UI works
+- billing architecture exists
+- environment variables are documented
+- deployment configuration exists
+- GitHub workflow exists
+- README is complete
+
+---
+
+# 77. AGENT BEHAVIOR
+
+You have autonomy.
+
+When there are multiple reasonable implementation choices:
+
+Choose the simplest production-grade option.
+
+When a feature is not essential for MVP:
+
+Implement a clean extensible foundation rather than unnecessary complexity.
+
+When credentials are unavailable:
+
+Implement the integration boundary and local/mock development mode.
+
+When a library is incompatible with Cloudflare Workers:
+
+Replace it with a compatible solution.
+
+Do not rewrite the entire project because of a minor issue.
+
+Do not ask me what to do unless a decision is impossible without secret credentials or an external account action.
+
+---
+
+# 78. BUILD ORDER
+
+Build in this order:
+
+Phase 1:
+
+Project foundation
+
+Phase 2:
+
+Database and authentication
+
+Phase 3:
+
+Organization/multi-tenancy
+
+Phase 4:
+
+Customer CRM
+
+Phase 5:
+
+Leads
+
+Phase 6:
+
+Quotes
+
+Phase 7:
+
+Public quotes
+
+Phase 8:
+
+Revenue Recovery
+
+Phase 9:
+
+Jobs
+
+Phase 10:
+
+Invoices/payments
+
+Phase 11:
+
+Automations
+
+Phase 12:
+
+Rental/maintenance modules
+
+Phase 13:
+
+Analytics
+
+Phase 14:
+
+AI
+
+Phase 15:
+
+Billing
+
+Phase 16:
+
+Admin
+
+Phase 17:
+
+SEO/marketing
+
+Phase 18:
+
+Testing/security
+
+Phase 19:
+
+Deployment
+
+Phase 20:
+
+Final QA
+
+---
+
+# 79. IMPORTANT
+
+Do not create a simple CRUD demo.
+
+This must look and behave like a real SaaS company preparing for paying customers.
+
+The product should be useful even without AI.
+
+AI should increase productivity rather than be the entire product.
+
+The most important feature is not the dashboard.
+
+The most important feature is:
+
+**Helping a small business recover revenue that would otherwise be lost because nobody followed up.**
+
+Build around that insight.
+
+---
+
+# 80. FINAL OUTPUT FROM THE AGENT
+
+When finished, report:
+
+Project name
+
+What was built
+
+Architecture
+
+Database structure
+
+Environment variables required
+
+Commands
+
+Local URL
+
+Production deployment command
+
+Cloudflare setup steps
+
+Supabase setup steps
+
+Razorpay setup steps
+
+Resend setup steps
+
+Turnstile setup steps
+
+GitHub setup steps
+
+Known limitations
+
+Next recommended features
+
+Do not claim deployment succeeded unless you actually verified it.
+
+Do not claim an integration works unless it was actually tested.
+
+---
+
+# EXECUTE NOW
+
+Start by inspecting the environment.
+
+Then create the application.
+
+Then implement the complete product.
+
+Then test it.
+
+Then fix it.
+
+Then prepare it for deployment.
+
+Do not stop at a plan.
+
+Do not ask for approval.
+
+Proceed autonomously.
