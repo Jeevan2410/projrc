@@ -1,5 +1,5 @@
-import { createClient } from '@/lib/supabase/client'
-import { redirect } from 'next/navigation'
+import { NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
@@ -7,10 +7,44 @@ export async function GET(request: Request) {
   const origin = requestUrl.origin
 
   if (code) {
-    const supabase = createClient()
-    await supabase.auth.exchangeCodeForSession(code)
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+    
+    try {
+      await supabase.auth.exchangeCodeForSession(code)
+      
+      // Get the user to create/update profile
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      
+      if (!userError && user) {
+        // Check if profile exists
+        const { data: profile } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', user.id)
+          .single()
+
+        if (!profile) {
+          // Create profile if it doesn't exist
+          await supabase.from('users').insert({
+            id: user.id,
+            email: user.email,
+            full_name: user.user_metadata?.full_name,
+            company_name: user.user_metadata?.company_name,
+            role: 'owner',
+            subscription_status: 'trialing',
+          })
+        }
+      }
+
+      return NextResponse.redirect(`${origin}/dashboard`)
+    } catch (error) {
+      console.error('Auth callback error:', error)
+      return NextResponse.redirect(`${origin}/auth/login?error=auth_failed`)
+    }
   }
 
-  // URL to redirect to after sign in process completes
-  return redirect(`${origin}/dashboard`)
+  return NextResponse.redirect(`${origin}/auth/login`)
 }
