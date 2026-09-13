@@ -3,52 +3,44 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/index'
+import { createBrowserClient } from '@/lib/supabase/index'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
-export default function SignupPage() {
+export default function LoginPage() {
   const router = useRouter()
-  const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [companyName, setCompanyName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
 
     try {
       const supabase = createBrowserClient()
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
-        options: {
-          data: {
-            full_name: fullName,
-            company_name: companyName,
-          },
-        },
       })
 
       if (error) throw error
 
-      setSuccess(true)
+      router.push('/dashboard')
+      router.refresh()
     } catch (err: any) {
-      setError(err.message || 'Failed to create account')
+      setError(err.message || 'Failed to login')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleGoogleSignup = async () => {
+  const handleGoogleLogin = async () => {
     setLoading(true)
     setError(null)
 
@@ -63,38 +55,18 @@ export default function SignupPage() {
 
       if (error) throw error
     } catch (err: any) {
-      setError(err.message || 'Failed to signup with Google')
+      setError(err.message || 'Failed to login with Google')
       setLoading(false)
     }
-  }
-
-  if (success) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Check your email</CardTitle>
-            <CardDescription className="text-center">
-              We've sent you a confirmation link. Please click it to activate your account.
-            </CardDescription>
-          </CardHeader>
-          <CardFooter>
-            <Button variant="outline" className="w-full" onClick={() => router.push('/auth/login')}>
-              Back to login
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-    )
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">Welcome back</CardTitle>
           <CardDescription className="text-center">
-            Start your 14-day free trial with QuoteFlow
+            Sign in to your QuoteFlow account
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -104,19 +76,7 @@ export default function SignupPage() {
             </Alert>
           )}
 
-          <form onSubmit={handleSignup} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
-              <Input
-                id="fullName"
-                type="text"
-                placeholder="John Doe"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-                disabled={loading}
-              />
-            </div>
+          <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -130,18 +90,15 @@ export default function SignupPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="companyName">Company Name (Optional)</Label>
-              <Input
-                id="companyName"
-                type="text"
-                placeholder="Acme Inc."
-                value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
-                disabled={loading}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                <Link
+                  href="/auth/reset-password"
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <Input
                 id="password"
                 type="password"
@@ -149,13 +106,11 @@ export default function SignupPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                minLength={8}
                 disabled={loading}
               />
-              <p className="text-xs text-muted-foreground">Must be at least 8 characters</p>
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Creating account...' : 'Create account'}
+              {loading ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>
 
@@ -172,7 +127,7 @@ export default function SignupPage() {
             variant="outline"
             type="button"
             className="w-full"
-            onClick={handleGoogleSignup}
+            onClick={handleGoogleLogin}
             disabled={loading}
           >
             <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -198,13 +153,13 @@ export default function SignupPage() {
         </CardContent>
         <CardFooter className="flex flex-col space-y-2">
           <div className="text-sm text-center text-muted-foreground">
-            Already have an account?{' '}
-            <Link href="/auth/login" className="text-blue-600 hover:underline">
-              Sign in
+            Don't have an account?{' '}
+            <Link href="/auth/signup" className="text-blue-600 hover:underline">
+              Sign up
             </Link>
           </div>
           <div className="text-xs text-center text-muted-foreground">
-            By signing up, you agree to our{' '}
+            By signing in, you agree to our{' '}
             <Link href="/terms" className="hover:underline">Terms of Service</Link>{' '}
             and{' '}
             <Link href="/privacy" className="hover:underline">Privacy Policy</Link>

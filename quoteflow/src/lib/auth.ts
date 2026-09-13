@@ -1,9 +1,9 @@
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/index'
 import { User } from '@/lib/supabase/types'
 
 export async function getCurrentUser(): Promise<User | null> {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user }, error } = await supabase.auth.getUser()
 
     if (error || !user) {
