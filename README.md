@@ -2,6 +2,8 @@
 
 **Turn every enquiry into a quote, every quote into a job, and every job into paid revenue.**
 
+![QuoteFlow landing page: turn every enquiry into a quote, every quote into paid revenue](docs/screenshot.jpg)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
 [![Next.js 16](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
